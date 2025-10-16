@@ -1,0 +1,68 @@
+1) OPENMP
+
+sudo apt update
+sudo apt install build-essential -y
+gcc --version
+
+Create a file called openmp_max.c:
+
+#include <stdio.h>
+#include <omp.h>
+int main(void) {
+    int arr[10] = {2, 77, 45, 18, 7, 264, 183, 23, 55, 90};
+    int n = 10;
+    int max = arr[0];
+    #pragma omp parallel for reduction(max:max)
+    for(int i = 1; i < n; i++) {
+        if(arr[i] > max) {
+            max = arr[i];
+        }
+    }
+    printf("Largest Number is %d\n", max);
+    return 0;
+}
+
+gcc -fopenmp openmp_max.c -o openmp_max
+./openmp_max
+
+Largest Number is 264
+
+2)MPI
+
+sudo apt install mpich -y
+mpicc -version
+
+Create a file called mpi_max.cpp:
+
+#include <stdio.h>
+#include <mpi.h>
+int main(int argc, char* argv[]) {
+    int n = 10;
+    int rank, size;
+    int arr[10] = {2, 77, 45, 18, 7, 264, 183, 23, 55, 90};
+    MPI_Init(&argc, &argv);                   
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);     
+    MPI_Comm_size(MPI_COMM_WORLD, &size);      
+    int chunks = n / size;                    
+    int start = chunks * rank;
+    int end = (rank == size - 1) ? n : start + chunks;
+    int local_max = arr[start];
+    for(int i = start; i < end; i++) {       
+        if(local_max < arr[i]) {
+            local_max = arr[i];
+        }
+    }
+    int global_max;
+    MPI_Reduce(&local_max, &global_max, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+    if(rank == 0) {
+        printf("Largest Number is %d\n", global_max);
+    }
+    MPI_Finalize();                          
+    return 0;
+}
+
+mpic++ mpi_max.cpp -o mpi_max
+mpirun -np 4 ./mpi_max
+
+Largest Number is 264
+
