@@ -1,63 +1,49 @@
-from flask import Flask, session, redirect
+from flask import Flask, session, redirect, url_for
 from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
 app.secret_key = "qelmfeognmgeogn"
 
+CLIENT_ID = "nKlXIKFXkqlX46DVlKgmGu6OrihP3Bbu"
+CLIENT_SECRET = "2Hf3gEcntOAStPPd_DzL7vJush_2PH_uFsENRV1zNcmupGpLsdD57F8zI5c0ZCNd"
+DOMAIN = "dev-j87nde2dibougnwd.us.auth0.com"
+CALLBACK_URL = "http://localhost:3000/callback"
+
 oauth = OAuth(app)
-
-# --- 🔧 Replace these with your actual Auth0 app details ---
-cid = "cTJ8G7lQZzqYUn1oneWCGmbSMZy4nDof"           #"YOUR_CLIENT_ID"
-csec ="0eelKNWIsf_8Ey-Wd3ZVeu0YrQbuDFKS2F6OEyWHwhfLTGJCVatarwHWeU3RywWg"    #"YOUR_CLIENT_SECRET"
-cdom ="dev-qdi7zq20rhbbdayj.us.auth0.com"            #"YOUR_DOMAIN" 
-cb = "http://localhost:3000"
-# ------------------------------------------------------------
-
 auth0 = oauth.register(
-    "auth0",
-    client_id=cid,
-    client_secret=csec,
+    name="auth0",
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
     client_kwargs={"scope": "openid profile email"},
-    server_metadata_url=f"https://{cdom}/.well-known/openid-configuration"
+    server_metadata_url=f"https://{DOMAIN}/.well-known/openid-configuration"
 )
 
 @app.route("/")
 def home():
-    u = session.get("u")
-    if u:
-        return f"<h1>Welcome {u['name']} <a href='/out'>Logout</a></h1>"
-    return "<h1>Welcome Guest <a href='/in'>Login</a></h1>"
+    user = session.get("user")
+    if user:
+        return f"""
+        <h1>Welcome, {user['name']}!</h1>
+        <p>Email: {user['email']}</p>
+        <a href='/out'>Logout</a>
+        """
+    return "<h1>Welcome, Guest!</h1><a href='/in'>Login</a>"
 
 @app.route("/in")
 def login():
-    return oauth.auth0.authorize_redirect(redirect_uri=cb)
+    return auth0.authorize_redirect(redirect_uri=CALLBACK_URL)
 
 @app.route("/callback")
 def callback():
-    t = auth0.authorize_access_token()
-    session["u"] = t["userinfo"]
-    return redirect("/")
+    token = auth0.authorize_access_token()
+    session["user"] = token["userinfo"]
+    return redirect(url_for("home"))
 
 @app.route("/out")
-def out():
+def logout():
     session.clear()
-    return redirect("/")
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=True, port=3000)
 
-
-
-
-
-
-
-
-
-#Install dependencies:
-
-#pip install flask authlib
-
-
-
-#python app.py
