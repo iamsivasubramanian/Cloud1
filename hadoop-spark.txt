@@ -1,0 +1,70 @@
+1)HADOOP
+
+sudo apt update
+sudo apt install openjdk-11-jdk ssh -y
+java -version
+
+cd ~
+wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+tar -xzf hadoop-3.3.6.tar.gz
+mv hadoop-3.3.6 hadoop
+
+nano ~/.bashrc
+
+export HADOOP_HOME=$HOME/hadoop
+export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+source ~/.bashrc
+
+hadoop version
+
+mkdir input
+echo "hello hadoop hello world" > input/file.txt
+
+hadoop jar $HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.6.jar wordcount input output
+
+cat output/part-r-00000
+
+hadoop  1
+hello   2
+world   1
+
+2)SPARK
+
+step 1:
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+java -version
+
+step 2:
+cd ~
+wget https://dlcdn.apache.org/spark/spark-3.5.7/spark-3.5.7-bin-hadoop3.tgz
+tar -xzf spark-3.5.7.bin.hadoop3.tgz
+mv spark-3.5.7.bin.hadoop3
+
+step 3:
+nano ~/.bashrc
+export SPARK_HOME=$HOME/spark
+export PATH=$PATH:$SPARK_HOME/sbin
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+source ~/.bashrc
+
+step 4:
+#check version
+spark-shell --version
+
+step 5:
+mkdir input
+echo "hello hadoop hello world" > input/file.txt
+
+step 6:
+spark-shell
+
+val textFile = sc.textFile("input/file.txt")
+val words = textFile.flatMap(line => line.split(" "))
+val wordPairs = words.map(word => (word, 1))
+val wordCounts = wordPairs.reduceByKey(_ + _)
+wordCounts.collect().foreach(println)
+
+
