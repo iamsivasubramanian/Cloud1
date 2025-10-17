@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Firebase To-Do App</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" defer src="app.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>📝 Firebase To-Do List</h2>
+
+    <div id="auth-section">
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button id="signupBtn">Sign Up</button>
+      <button id="loginBtn">Login</button>
+      <button id="logoutBtn" style="display:none;">Logout</button>
+    </div>
+
+    <div id="todo-section" style="display:none;">
+      <input type="text" id="todoInput" placeholder="Enter a task" />
+      <button id="addTodoBtn">Add</button>
+      <ul id="todoList"></ul>
+    </div>
+  </div>
+</body>
+</html>
+
+
+
+npm install -g firebase-tools
+firebase login
+firebase init
+➡ Choose Hosting
+➡ Select your Firebase project
+➡ Set public folder → .
+➡ Say No to SPA rewrite
+➡ No to overwriting index.html
+
+Then deploy:
+
+bash
+Copy code
+firebase deploy
